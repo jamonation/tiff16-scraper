@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Anna",
+    "director": "Or Sinai",
+    "countries": "Israel",
+    "runtime": "24 minutes",
+    "premiere": "North American Premiere",
+    "year": "2015",
+    "language": "Hebrew",
+    "pitch": "On a hot, sticky day in the desert, Anna goes looking for a man. This Cannes Cinéfondation First Prize winner spins a deeply sensual tale of lust and love, and of a woman who discovers the difference between the two. \n",
+    "production": "The Jerusalem Sam Spiegel Film School",
+    "producers": "Leah Tonic",
+    "screenplay": "Or Sinai",
+    "cinematographers": "Saar Mizrahi",
+    "editors": "Noy Barak",
+    "score": "Ran Bagno",
+    "sound": "",
+    "cast": "Evgenia Dodina"
+  },
+  {
+    "name": "Fluffy",
+    "director": "Lee Filipovski",
+    "countries": "Serbia / Canada",
+    "runtime": "24 minutes",
+    "premiere": "World Premiere",
+    "year": "2016",
+    "language": "Serbian",
+    "pitch": "Boris and his family are preparing to leave his hypochondriac parents and their impossibly tiny Belgrade flat for a long-awaited new life in Canada. However, his 10-year-old daughter Ljubica has entered a contest that is about to subvert everyone’s plans. \n",
+    "production": "Filmbaker Pictures",
+    "producers": "Senka Nikolic",
+    "screenplay": "Lee Filipovski",
+    "cinematographers": "Aleksandar Karaulic",
+    "editors": "Davor Bosankic",
+    "score": "",
+    "sound": "Nikola Medic",
+    "cast": "Tamara Krcunovic, Srdjan Miletic, Helena Jakovljevic, Fedja Stojanovic, Ljiljana Stjepanovic, Slaven Doslo, Katarina Markovic, Slavisa Curovic, Nikola Radulovic"
+  }
+]
