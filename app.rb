@@ -2,7 +2,8 @@ require 'nokogiri'
 require 'open-uri'
 require 'json'
 
-urls = ["http://tiff.net/films/anna/", "http://tiff.net/films/fluffy"]
+urls_file = File.read("urls.json")
+urls = JSON.parse(urls_file)
 films = Array.new
 
 for url in urls do
