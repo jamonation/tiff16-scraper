@@ -15,4 +15,4 @@ As per TIFF Terms and Conditions, this data is being used soley for educational,
 This process takes about 2 minutes on MacBook Air (13-inch, Early 2015) 1.6 GHz Intel Core i5 and at 250Mbps internet connection. This process will take much longer on a slower internet connection and slower processor.
 
 ### To Do
-* Make the URLs.json file with Nokogiri, requires site interaction to load all the data before parsing the dom for the urls of films.
+~~* Make the URLs.json file with Nokogiri, requires site interaction to load all the data before parsing the dom for the urls of films.~~

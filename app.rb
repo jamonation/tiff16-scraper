@@ -2,8 +2,27 @@ require 'nokogiri'
 require 'open-uri'
 require 'json'
 
-urls_file = File.read("urls.json")
-urls = JSON.parse(urls_file)
+urls_file = 'urls.json'
+
+if File.file?(urls_file)
+  urls = JSON.parse(File.read(urls_file))
+else
+  urls = Array.new
+  urlsDOM = Nokogiri::HTML(open('http://tiff.net/?filter=festival'), nil, 'utf-8')
+  tiff_urls = urlsDOM.css("#calendar .container .row .card .card-title")
+
+  tiff_urls.each do |url|
+    # don't strip spaces in urls, gsub them with url encoded %20 instead
+    href = url['href'].gsub(' ', '%20')
+    if href.match(/^films/)
+      urls.push("http://tiff.net/#{href}")
+    end
+  end
+  File.open("urls.json", "w") do |f|
+    f.write(JSON.pretty_generate(urls))
+  end
+end
+
 films = Array.new
 
 for url in urls do
