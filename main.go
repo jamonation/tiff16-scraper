@@ -6,28 +6,32 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"io/ioutil"
 	"log"
+	"regexp"
+	"strings"
 )
 
 // Film contains the fields that a film should have.
 // Some of these should probably be broken down into slices e.g. Cast
 type Film struct {
 	Artist           string
-	Cast             string
-	Cinematographers string
-	Countries        string
-	Director         string
-	Editors          string
-	Language         string
-	Name             string
-	Pitch            string
-	Premiere         string
-	Producers        string
-	Production       string
-	Runtime          string
-	Score            string
-	Screenplay       string
-	Sound            string
-	Year             string
+	Cast             []string `json:"cast"`
+	Cinematographers []string `json:"cinematographers"`
+	Countries        []string `json:"countries` // '/'
+	Director         []string `json:"director"`
+	Editors          []string `json:"editors"`
+	Language         []string `json:"language"`
+	Name             string   `json:"name"`
+	Pitch            string   `json:"pitch"`
+	Premiere         string   `json:"premiere"`
+	Producers        []string `json:"producers"`  // ','
+	Production       []string `json:"production"` // ','
+	Runtime          string   `json:"runtime"`
+	Score            []string `json:"score"`
+	Screenplay       []string `json:"screenplay"` // ','
+	Sound            []string `json:"sound"`
+	Year             string   `json:"year"`
+	TiffImage        string   `json:"tiffimage"`
+	TiffURL          string   `json:"tiffurl"`
 }
 
 // Selectors is a bit of overkill, but it makes updating for 2017 and beyond pretty easy
@@ -49,6 +53,23 @@ var Selectors = map[string]string{
 	"Screenplay":       "#screenplay .credit-content",
 	"Sound":            "#sound .credit-content",
 	"Year":             "span.quick-info .year",
+}
+
+func getFilmUrls() []string {
+	var urls []string
+	doc, err := goquery.NewDocument("http://tiff.net/?filter=festival")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	doc.Find("#calendar .container .row .card.festival .card-title").Each(func(_ int, s *goquery.Selection) {
+		url, _ := s.Attr("href")
+		if strings.HasPrefix(url, "films/") {
+			full_url := "http://tiff.net/" + string(url)
+			urls = append(urls, full_url)
+		}
+	})
+	return urls
 }
 
 // getUrls reads a urls.json from disk and unmarshals it into a slice of strings
@@ -94,26 +115,34 @@ func scrapeFilm(url string, ch chan Film, chFinished chan bool) {
 	doc.Find("#wrap").Each(func(_ int, s *goquery.Selection) {
 		f = Film{
 			Artist:           s.Find(Selectors["Artist"]).Text(),
-			Cast:             s.Find(Selectors["Cast"]).Text(),
-			Cinematographers: s.Find(Selectors["Cinematographers"]).Text(),
-			Countries:        s.Find(Selectors["Countries"]).Text(),
-			Director:         s.Find(Selectors["Director"]).Text(),
-			Editors:          s.Find(Selectors["Editors"]).Text(),
-			Language:         s.Find(Selectors["Language"]).Text(),
+			Cast:             strings.Split(s.Find(Selectors["Cast"]).Text(), ", "),
+			Cinematographers: strings.Split(s.Find(Selectors["Cinematographers"]).Text(), ", "),
+			Countries:        strings.Split(s.Find(Selectors["Countries"]).Text(), " / "),
+			Director:         strings.Split(s.Find(Selectors["Director"]).Text(), ", "),
+			Editors:          strings.Split(s.Find(Selectors["Editors"]).Text(), ", "),
+			Language:         strings.Split(s.Find(Selectors["Language"]).Text(), ", "),
 			Name:             s.Find(Selectors["Name"]).Text(),
-			Pitch:            s.Find(Selectors["Pitch"]).Text(),
+			Pitch:            strings.TrimSuffix(s.Find(Selectors["Pitch"]).Text(), "\n"),
 			Premiere:         s.Find(Selectors["Premiere"]).Text(),
-			Producers:        s.Find(Selectors["Producers"]).Text(),
-			Production:       s.Find(Selectors["Production"]).Text(),
+			Producers:        strings.Split(s.Find(Selectors["Producers"]).Text(), ", "),
+			Production:       strings.Split(s.Find(Selectors["Production"]).Text(), ", "),
 			Runtime:          s.Find(Selectors["Runtime"]).Text(),
-			Score:            s.Find(Selectors["Score"]).Text(),
-			Screenplay:       s.Find(Selectors["Screenplay"]).Text(),
-			Sound:            s.Find(Selectors["Sound"]).Text(),
+			Score:            strings.Split(s.Find(Selectors["Score"]).Text(), ", "),
+			Screenplay:       strings.Split(s.Find(Selectors["Screenplay"]).Text(), ", "),
+			Sound:            strings.Split(s.Find(Selectors["Sound"]).Text(), ", "),
 			Year:             s.Find(Selectors["Year"]).Text(),
 		}
-		// throw the result into the channel
-		ch <- f
+
+		image, _ := s.Find("#work-images img:first-child").Attr("src")
+		re := regexp.MustCompile("w=1200&h=600.+")
+		image = re.ReplaceAllString(image, "w=400")
+		f.TiffImage = "http:" + image
+		f.TiffURL = url
+
 	})
+
+	// throw the result into the channel
+	ch <- f
 }
 
 func main() {
@@ -121,7 +150,7 @@ func main() {
 	var films []Film
 
 	// open the list of films in urls.json
-	urls := getUrls()
+	urls := getFilmUrls()
 
 	// setup channels for concurrent parsing
 	chFilms := make(chan Film)
